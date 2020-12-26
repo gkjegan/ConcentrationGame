@@ -3,7 +3,7 @@ First iOS game from standford CS193p. This game is to understand the MVC design 
 
 ## The MVC architecture 
 
-mvc.png
+./mvc.png
 
 1. Model and View never talk to each other
 2. Controller talks to the model freely, while the model can communicate to the controller only using notification and Key Value Observing (more details later). View can sometime listen to controller notification but never to the model notification.
