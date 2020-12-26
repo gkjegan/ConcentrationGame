@@ -1,28 +1,27 @@
 # ConcentrationGame
-First iOS game from standford CS193p ConcentrationGame
+First iOS game from standford CS193p. This game is to understand the MVC design behind the iOS app development using UIKit
 
-This game is built using MVC architecture (and using old UIKit) for academic purpose. Here is the understanding on the architecture of the game.
+## The MVC architecture 
 
+mvc.png
 
-The MVC architecture 
-
-
-Model and View never talk to each other
-Controller talks to the model freely, while the model can communicate to the controller only using notification and Key Value Observing (more details later). View can sometime listen to controller notification but never to the model notification.
-Controller talks to the view using outlet (IBOutlet or Interface Builder Outlet) to talk freely, while the view can talk to controller in blind and structured ways
-View can use interface builder target action to connect the view component to specific methods in the controller. The view sends the action when things happen in the UI (such as clicked)
-In complex cases such as view needs to synchronize with the controller withView (such as scroll view), the controller sets itself as the view's delegate (using should, will, did variables). The delegate is set via a protocol. (more details later)
-As view cannot own the data, view uses another protocol type delegate called data source to connect to the controller(suing data-at, count variables)
-Overall, the purpose of a controller is to interpret or format model information for the view.
+1. Model and View never talk to each other
+2. Controller talks to the model freely, while the model can communicate to the controller only using notification and Key Value Observing (more details later). View can sometime listen to controller notification but never to the model notification.
+3. Controller talks to the view using outlet (IBOutlet or Interface Builder Outlet) to talk freely, while the view can talk to controller in blind and structured ways
+    - View can use interface builder target action to connect the view component to specific methods in the controller. The view sends the action when things happen in the UI (such as clicked)
+    - In complex cases such as view needs to synchronize with the controller withView (such as scroll view), the controller sets itself as the view's delegate (using should, will, did variables). The delegate is set via a protocol. (more details later)
+    - As view cannot own the data, view uses another protocol type delegate called data source to connect to the controller(suing data-at, count variables)
+4. Overall, the purpose of a controller is to interpret or format model information for the view.
 
 
-The Controller
+## The Controller
 Let's take a look at the controller for the concentration game. 
 
-Controller-View Interaction
-IBOutlet (The green arrow):
+### Controller-View Interaction
+#### IBOutlet (The green arrow):
 IBOutlets (Interface Builder Outlet) will connect the UI element with the variable defined in the controller. The communication is from controller to view.
-FlipCount UILabel
+
+##### FlipCount UILabel
 @IBOutlet weak var flipCountLabel: UILabel!
 
 The variable flipCountLabel connects the UILabel element that displays the number of flips. The UI label element is linked to this variable.  The controller tracks the flip count using a variable called flipCount. When user clicks the card, the function touchCard is called(details on this interaction below) and the variable flipCount is incremented to 1
@@ -33,13 +32,13 @@ var flipCount = 0 {
         }  
 
 Property Observer "didset" will detect the changes in this variable and update the label in the UI.
-CardButtons UIButton
+
+###### CardButtons UIButton
  @IBOutlet var cardButtons: [UIButton]!
 
 The variable cardButtons is an array of UI buttons (the cards to flip). Every UI button added is linked to this variable. The controller can then use array's functions such as count, index  or indices to get an index for all the buttons. 
 
-
-IBAction (The yellow arrow):
+#### IBAction (The yellow arrow):
 IBAction (Interface Builder Action) will connect the UI element to a function in the controller. The communication is from view to the controller. 
     @IBAction func touchCard(_ sender: UIButton) {
         flipCount += 1
@@ -90,12 +89,14 @@ Emojis for Cards:
     }
 
 Emoji variable is a dictionary where the key is the card index and the value is the emoji string. The emoji function will return the emoji for the card index and if not available add a random emoji from emojiChoices array. 
-Controller-Model Interaction
+
+### Controller-Model Interaction
 
 "Concentration" is the model that the controller interacts with. The communication is from controller to model (Green arrow)]
 
    lazy var game = Concentration(numberOfPairsOfCards: (cardButtons.count + 1) / 2)
-Model Init
+
+#### Model Init
 Controller initializes the concentration model with a variable name called "game" by passing the half the number of UI buttons available. Communication is from controller to model.
 
     init(numberOfPairsOfCards: Int){
@@ -114,7 +115,8 @@ Controller initializes the concentration model with a variable name called "game
     }
 
 The init method of the concentration model takes a number of pairs of cards (number of buttons / 2) and creates a card and a matching card. 
-"What is a Card"?
+
+#### "What is a Card"?
 A Card model is of type "struct" with following properties and functions
 struct Card
 {
@@ -140,7 +142,8 @@ struct Card
 }
 
 The Card model has 3 properties: isFaceUp, isMatched, and identifier, 1 static function to create identifier and initialize the identifier during the init.
-Back to Concentration model
+
+#### Back to Concentration model
 The init method of concentration calls Card's init method that returns the Card 'struct' with an identifier. Adds the same card twice into the cards array. (as the card is a struct, it copies using value (not by reference). So two copies of card with the same identifier are added to the array called cards.
 
 End of init in the concentration model the cards array will have cards equals to the total number of button with two cards having same identifier
@@ -164,14 +167,15 @@ End of init in the concentration model the cards array will have cards equals to
   [15] = (isFaceUp = false, isMatched = false, identifier = 8)
 
 
-ChooseCard Action
+#### ChooseCard Action
 ChooseCard is the action called from the controller's touchCard function when the user clicks on the UI button. Once again the communication is from the controller to the model. 
 
    var indexOfOneCardFaceUp: Int?
     
-Best use of Optional Variable
+##### Best use of Optional Variable
 It starts with an important variable called indexOfOneCardFaceUp. This variable is of type "optional" with values of Int. This variable will be "nil" if no cards face up or more than one card face up and the index of the card if one card faces up. Used as both as a boolean type to check if this is nil or not and Integer type if not nil, so we can use the index.
-Game Logic
+
+##### Game Logic
 func chooseCard(at index: Int) {
         if !cards[index].isMatched {
             if let matchIndex = indexOfOneCardFaceUp, matchIndex != index {
@@ -201,8 +205,8 @@ Second Click: One card is already faced up and the user clicks the second card (
 Third Click: If matches, we do nothing. When the user clicks the third, the matched cards disappear.  
 Third Click: If no matches, when user clicks the third one, all cards fold down
 
-Reference
-This document is to understand the MVC design behind the concentration game from stanford CS193P course
+## Reference
+
 https://www.youtube.com/playlist?list=PLPA-ayBrweUzGFmkT_W65z64MoGnKRZMq
 
 
